@@ -1,5 +1,9 @@
 import React, { Component } from "react";
 import Web3 from "web3";
+import TodoList from "../../contracts/build/contracts/TodoList.json";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import TodoListComp from "./TodoListComp";
 
 class App extends Component {
     async componentWillMount() {
@@ -13,6 +17,30 @@ class App extends Component {
         const accounts = await web3.eth.getAccounts();
         console.log("Accounts: ", accounts);
         this.setState({ account: accounts[0] });
+        const networkId = await web3.eth.net.getId();
+
+        // load todolist contract
+        const todoListData = TodoList.networks[networkId];
+
+        if (todoListData) {
+            const todoList = new web3.eth.Contract(
+                TodoList.abi,
+                todoListData.address
+            );
+            console.log("data: ", todoList);
+            this.setState({ todoList });
+            let taskCount = await todoList.methods.taskCount().call();
+            console.log("Task count: " + taskCount);
+            this.setState({ taskCount: parseInt(String(taskCount)) });
+            for (var i = 1; i <= taskCount; i++) {
+                const task = await todoList.methods.tasks(i).call();
+                this.setState({
+                    tasks: [...this.state.tasks, task],
+                });
+            }
+        } else {
+            window.alert("Token contract not deployed to detected network.");
+        }
 
         this.setState({ loading: false });
     }
@@ -34,19 +62,68 @@ class App extends Component {
         super(props);
         this.state = {
             account: "",
-            token: {},
-            ethSwap: {},
-            ethBalance: "0",
-            tokenBalance: "0",
+            taskCount: 0,
+            tasks: [],
             loading: true,
         };
+
+        this.createTask = this.createTask.bind(this);
     }
 
+    createTask = (content) => {
+        this.setState({ loading: true });
+        this.state.todoList.methods
+            .createTask(content)
+            .send({ from: this.state.account })
+            .once("receipt", (receipt) => {
+                this.setState({ loading: false });
+            });
+    };
+
     render() {
+        console.log("tasks: ", this.state.tasks);
+        console.log("Loading? ", this.state.loading);
         return (
-            <div className="Container">
-                <h2>Hello World!</h2>
-                <p>Your account id is: {this.state.account}</p>
+            <div>
+                <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+                    <a
+                        className="navbar-brand col-sm-3 col-md-2 mr-0"
+                        href="http://www.dappuniversity.com/free-download"
+                        target="_blank"
+                    >
+                        Reactjs | Todo List
+                    </a>
+                    <ul className="navbar-nav px-3">
+                        <li className="nav-item text-nowrap d-none d-sm-none d-sm-block">
+                            <small>
+                                <a className="nav-link" href="#">
+                                    <span id="account">
+                                        {this.state.account}
+                                    </span>
+                                </a>
+                            </small>
+                        </li>
+                    </ul>
+                </nav>
+                <div className="container-fluid">
+                    <div className="row">
+                        <main
+                            role="main"
+                            className="col-lg-12 d-flex justify-content-center"
+                        >
+                            {this.state.loading ? (
+                                <div id="loader" className="text-center">
+                                    <p className="text-center">Loading...</p>
+                                </div>
+                            ) : (
+                                <TodoListComp
+                                    tasks={this.state.tasks}
+                                    createTask={this.createTask}
+                                />
+                            )}
+                        </main>
+                    </div>
+                </div>
             </div>
         );
     }

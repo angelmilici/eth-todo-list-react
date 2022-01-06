@@ -13,7 +13,7 @@ contract TodoList {
         createTask("Check out xyz.com");
     }
 
-    mapping(uint => Task) public tasks;
+    mapping(uint => Task) public tasks; // keeps track of number of tasks
 
     function createTask(string memory _content) public {
         taskCount ++;
