@@ -76,13 +76,26 @@ class App extends Component {
             .createTask(content)
             .send({ from: this.state.account })
             .once("receipt", (receipt) => {
-                this.setState({ loading: false });
+                this.setState({ loading: true });
             });
     };
 
     render() {
-        console.log("tasks: ", this.state.tasks);
-        console.log("Loading? ", this.state.loading);
+        let content;
+        if (this.state.loading) {
+            content = (
+                <p id="loader" className="text-center">
+                    Loading...
+                </p>
+            );
+        } else {
+            content = (
+                <TodoListComp
+                    tasks={this.state.tasks}
+                    createTask={this.createTask}
+                />
+            );
+        }
         return (
             <div>
                 <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
@@ -105,22 +118,24 @@ class App extends Component {
                         </li>
                     </ul>
                 </nav>
-                <div className="container-fluid">
+                <div className="container-fluid mt-5">
                     <div className="row">
                         <main
                             role="main"
-                            className="col-lg-12 d-flex justify-content-center"
+                            className="col-lg-12 ml-auto mr-auto"
+                            style={{ maxWidth: "600px" }}
                         >
-                            {this.state.loading ? (
-                                <div id="loader" className="text-center">
-                                    <p className="text-center">Loading...</p>
-                                </div>
-                            ) : (
-                                <TodoListComp
-                                    tasks={this.state.tasks}
-                                    createTask={this.createTask}
-                                />
-                            )}
+                            <div className="content mr-auto ml-auto">
+                                <a
+                                    href="http://www.dappuniversity.com/bootcamp"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    123
+                                </a>
+
+                                {content}
+                            </div>
                         </main>
                     </div>
                 </div>

@@ -36,7 +36,7 @@ class TodoListComp extends Component {
             //     </button>
             // </div>
 
-            <div id="content">
+            <div id="content" className="mt-3">
                 <form
                     onSubmit={(event) => {
                         event.preventDefault();
