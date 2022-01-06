@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import TodoListComp from "./TodoListComp";
 
 class App extends Component {
-    async componentWillMount() {
+    async componentDidMount() {
         await this.loadWeb3();
         await this.loadBlockchainData();
     }
@@ -68,12 +68,23 @@ class App extends Component {
         };
 
         this.createTask = this.createTask.bind(this);
+        this.toggleCompleted = this.toggleCompleted.bind(this);
     }
 
     createTask = (content) => {
         this.setState({ loading: true });
         this.state.todoList.methods
             .createTask(content)
+            .send({ from: this.state.account })
+            .once("receipt", (receipt) => {
+                this.setState({ loading: true });
+            });
+    };
+
+    toggleCompleted = (taskId) => {
+        this.setState({ loading: true });
+        this.state.todoList.methods
+            .toggleCompleted(taskId)
             .send({ from: this.state.account })
             .once("receipt", (receipt) => {
                 this.setState({ loading: true });
@@ -93,6 +104,7 @@ class App extends Component {
                 <TodoListComp
                     tasks={this.state.tasks}
                     createTask={this.createTask}
+                    toggleCompleted={this.toggleCompleted}
                 />
             );
         }
@@ -126,14 +138,6 @@ class App extends Component {
                             style={{ maxWidth: "600px" }}
                         >
                             <div className="content mr-auto ml-auto">
-                                <a
-                                    href="http://www.dappuniversity.com/bootcamp"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    123
-                                </a>
-
                                 {content}
                             </div>
                         </main>

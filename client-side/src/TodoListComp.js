@@ -3,39 +3,6 @@ import React, { Component } from "react";
 class TodoListComp extends Component {
     render() {
         return (
-            // <div id="content">
-            //     <form
-            //         className="mb-3"
-            //         onSubmit={(event) => {
-            //             event.preventDefault();
-            //             this.props.createTask(this.task.value);
-            //         }}
-            //     ></form>
-            //     <div className="input-group mb-4">
-            //         <input
-            //             type="text"
-            //             // onChange={(event) => {
-            //             //     const etherAmount = this.input.value.toString();
-            //             //     this.setState({
-            //             //         output: etherAmount * 100,
-            //             //     });
-            //             // }}
-            //             ref={(input) => {
-            //                 this.input = input;
-            //             }}
-            //             className="form-control form-control-lg"
-            //             placeholder="Add text..."
-            //             required
-            //         />
-            //     </div>
-            //     <button
-            //         type="submit"
-            //         className="btn btn-primary btn-block btn-lg"
-            //     >
-            //         Enter
-            //     </button>
-            // </div>
-
             <div id="content" className="mt-3">
                 <form
                     onSubmit={(event) => {
@@ -45,7 +12,9 @@ class TodoListComp extends Component {
                 >
                     <input
                         id="newTask"
-                        ref={(input) => (this.task = input)}
+                        ref={(input) => {
+                            this.task = input;
+                        }}
                         type="text"
                         className="form-control"
                         placeholder="Add task..."
@@ -62,7 +31,17 @@ class TodoListComp extends Component {
                                 key={key}
                             >
                                 <label>
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        name={task.id}
+                                        defaultChecked={task.completed}
+                                        ref={(input) => {
+                                            this.checkbox = input;
+                                        }}
+                                        onClick={(event) => {
+                                            this.props.toggleCompleted(task.id);
+                                        }}
+                                    />
                                     <span className="content">
                                         {task.content}
                                     </span>
